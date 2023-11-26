@@ -60,14 +60,18 @@ bool isBorder(Map* map, int r, int c, int border) {
     unsigned char cellValue = map->cells[r * map->cols + c];
 
     switch (border) {
-        case 0:  // Left diagonal border
+        // Left diagonal border
+        case 0:
             return (cellValue & 1) != 0;
-        case 1:  // Right diagonal border
+        // Right diagonal border
+        case 1:
             return (cellValue & 2) != 0;
-        case 2:  // Top or bottom border
+        // Top or bottom border
+        case 2:
             return (cellValue & 4) != 0;
+        // Invalid border value
         default:
-            return false;  // Invalid border value
+            return false;
     }
 }
 
