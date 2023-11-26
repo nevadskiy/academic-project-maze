@@ -71,6 +71,52 @@ bool isBorder(Map* map, int r, int c, int border) {
     }
 }
 
+int startBorder(Map* map, int r, int c, int leftright) {
+    if (r < 0 || r >= map->rows || c < 0 || c >= map->cols) {
+        // Coordinates are out of bounds
+        return -1;
+    }
+
+    unsigned char cellValue = map->cells[r * map->cols + c];
+
+    // Right-hand rule
+    if (leftright == 0) {
+        // todo: refactor
+        if ((c % 2 == 1 && r % 2 == 1) || (c % 2 == 0 && r % 2 == 0)) {
+            if ((cellValue & 1) == 0) {
+                // Follow the left diagonal border
+                return 0;
+            }
+        }
+
+        if ((cellValue & 2) == 0) {
+            // Follow the right diagonal border
+            return 1;
+        }
+
+        // Follow the top or bottom border
+        return 2;
+    }
+    // Left-hand rule
+    else {
+        // todo: refactor
+        if ((c % 2 == 1 && r % 2 == 1) || (c % 2 == 0 && r % 2 == 0)) {
+            if ((cellValue & 1) == 0) {
+                // Follow the left diagonal border
+                return 0;
+            }
+        }
+
+        if ((cellValue & 4) == 0) {
+            // Follow the upper or lower limit
+            return 2;
+        }
+
+        // Follow the right diagonal border
+        return 1;
+    }
+}
+
 int main(int argc, char* argv[]) {
     // Validate input arguments
     if (argc != 5) {
