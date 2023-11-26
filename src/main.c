@@ -130,10 +130,15 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize input variables
-    int leftright = 0;
+    int leftright;
 
-    if (strcmp(argv[1], "--lpath")) {
+    if (strcmp(argv[1], "--rpath") == 0) {
+        leftright = 0;
+    } else if (strcmp(argv[1], "--lpath") == 0) {
         leftright = 1;
+    } else {
+        fprintf(stderr, "Unsupported rule %s\n", argv[1]);
+        exit(EXIT_FAILURE);
     }
 
     int row = atoi(argv[2]) - 1;  // Adjust to 0-based indexing
