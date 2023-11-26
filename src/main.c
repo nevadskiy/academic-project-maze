@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct {
     int rows;
@@ -124,36 +125,35 @@ int startBorder(Map* map, int r, int c, int leftright) {
 int main(int argc, char* argv[]) {
     // Validate input arguments
     if (argc != 5) {
-        fprintf(stderr, "Usage: %s <row> <col> <border> <filename>\n", argv[0]);
+        fprintf(stderr, "Usage: %s [--lpath|--rpath] <row> <col> <filename>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     // Initialize input variables
-    int row = atoi(argv[1]) - 1;  // Adjust to 0-based indexing
-    int col = atoi(argv[2]) - 1;  // Adjust to 0-based indexing
-    int border = atoi(argv[3]);
+    int leftright = 0;
+
+    if (strcmp(argv[1], "--lpath")) {
+        leftright = 1;
+    }
+
+    int row = atoi(argv[2]) - 1;  // Adjust to 0-based indexing
+    int col = atoi(argv[3]) - 1;  // Adjust to 0-based indexing
+
     const char* filename = argv[4];
 
     // Initialize the map from the filename
     Map* map = initMap(filename);
 
-    // Subtask #1: Print loaded map
-    //  for (int i = 0; i < map->rows; ++i) {
-    //      for (int j = 0; j < map->cols; ++j) {
-    //          printf("%hhu ", map->cells[i * map->cols + j]);
-    //      }
-    //      printf("\n");
-    //  }
+    // Determine the starting border based on the specified rule
+    int startBorderValue = startBorder(map, row, col, leftright);
 
-    // Subtask #2: Check if there is a wall on the left diagonal border of cell (2, 3)
-    // Check if there is a wall on the specified border of the given cell
-    bool hasWall = isBorder(map, row, col, border);
-
-    if (hasWall) {
-        printf("There is a wall on the specified border of cell (%d, %d)\n", row + 1, col + 1);
-    } else {
-        printf("There is no wall on the specified border of cell (%d, %d)\n", row + 1, col + 1);
+    if (startBorderValue == -1) {
+        fprintf(stderr, "Invalid coordinates\n");
+        releaseMap(map);
+        exit(EXIT_FAILURE);
     }
+
+    printf("Starting border: %d\n", startBorderValue);
 
     // Release memory
     releaseMap(map);
