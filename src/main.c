@@ -76,7 +76,7 @@ bool isBorder(Map* map, int r, int c, int border) {
     }
 }
 
-int startBorder(Map* map, int r, int c, int leftright) {
+int startBorder(Map* map, int r, int c, int rule) {
     if (r < 0 || r >= map->rows || c < 0 || c >= map->cols) {
         // Coordinates are out of bounds
         return -1;
@@ -84,41 +84,101 @@ int startBorder(Map* map, int r, int c, int leftright) {
 
     unsigned char cellValue = map->cells[r * map->cols + c];
 
-    // Right-hand rule
-    if (leftright == 0) {
-        // todo: refactor
+	printf("Cell %d,%d has value %d\n", r + 1, c + 1, cellValue);
+
+	// Left-hand rule
+	if (rule == -1) {
+		if (cellValue & 1) {
+			// Left diagonal border is missing
+			return 0;
+		}
+
+		if ((cellValue >> 1) & 1) {
+			// Right diagonal border is missing
+			return 1;
+		}
+
+		if ((cellValue >> 2) & 1) {
+			// Top / bottom border is missing
+			return 0;
+		}
+	}
+
+	// Right-hand rule
+    if (rule == 1) {
         if ((c % 2 == 1 && r % 2 == 1) || (c % 2 == 0 && r % 2 == 0)) {
             if ((cellValue & 1) == 0) {
-                // Follow the left diagonal border
-                return 0;
+                return 0;  // Follow the left diagonal border
             }
         }
-
         if ((cellValue & 2) == 0) {
-            // Follow the right diagonal border
-            return 1;
+            return 1;  // Follow the right edge of the skew
         }
-
-        // Follow the top or bottom border
-        return 2;
-    }
-    // Left-hand rule
-    else {
-        // todo: refactor
+        return 2;  // Follow the upper or lower limit
+    } else {  // Left-hand rule
         if ((c % 2 == 1 && r % 2 == 1) || (c % 2 == 0 && r % 2 == 0)) {
             if ((cellValue & 1) == 0) {
-                // Follow the left diagonal border
-                return 0;
+                return 0;  // Follow the left diagonal border
             }
         }
-
         if ((cellValue & 4) == 0) {
-            // Follow the upper or lower limit
-            return 2;
+            return 2;  // Follow the upper or lower limit
+        }
+        return 1;  // Follow the right edge of the skew
+    }
+}
+
+void printCoordinate(int r, int c) {
+	// Print coordinates and adjust to 1-based indexing
+    printf("%d,%d\n", r + 1, c + 1);
+}
+
+void findPath(Map* map, int r, int c, int rule) {
+    int currentR = r;
+    int currentC = c;
+    int currentBorder = startBorder(map, currentR, currentC, rule);
+
+    // Print the starting coordinate and initial direction
+    printCoordinate(currentR, currentC);
+
+    while (1) {
+        // Move to the next cell based on the current border
+        switch (currentBorder) {
+            case 0:  // Left diagonal border
+                if (rule == 0) {
+                    currentC--;
+                } else {
+                    currentR--;
+                }
+                break;
+            case 1:  // Right edge of the skew
+                if (rule == 0) {
+                    currentC++;
+                } else {
+                    currentR--;
+                }
+                break;
+            case 2:  // Upper or lower limit
+                if (rule == 0) {
+                    currentR++;
+                } else {
+                    currentC++;
+                }
+                break;
+            default:
+                break;
         }
 
-        // Follow the right diagonal border
-        return 1;
+        // Print the current coordinate
+        printCoordinate(currentR, currentC);
+
+        // Check if we have reached the exit
+        if (currentR < 0 || currentR >= map->rows || currentC < 0 || currentC >= map->cols) {
+            break;
+        }
+
+        // Determine the next border based on the rule
+        currentBorder = startBorder(map, currentR, currentC, rule);
     }
 }
 
@@ -130,12 +190,12 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize input variables
-    int leftright;
+    int rule;
 
     if (strcmp(argv[1], "--rpath") == 0) {
-        leftright = 0;
+        rule = -1;
     } else if (strcmp(argv[1], "--lpath") == 0) {
-        leftright = 1;
+        rule = 1;
     } else {
         fprintf(stderr, "Unsupported rule %s\n", argv[1]);
         exit(EXIT_FAILURE);
@@ -149,16 +209,8 @@ int main(int argc, char* argv[]) {
     // Initialize the map from the filename
     Map* map = initMap(filename);
 
-    // Determine the starting border based on the specified rule
-    int startBorderValue = startBorder(map, row, col, leftright);
-
-    if (startBorderValue == -1) {
-        fprintf(stderr, "Invalid coordinates\n");
-        releaseMap(map);
-        exit(EXIT_FAILURE);
-    }
-
-    printf("Starting border: %d\n", startBorderValue);
+    // Find and print the path
+    findPath(map, row, col, rule);
 
     // Release memory
     releaseMap(map);
