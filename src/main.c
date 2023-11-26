@@ -76,6 +76,7 @@ bool isBorder(Map* map, int r, int c, int border) {
     }
 }
 
+// @todo this function should be called only once to determine initial moving direction respecting input rule (left / right) (could be 6 possible outputs)
 int startBorder(Map* map, int r, int c, int rule) {
     if (r < 0 || r >= map->rows || c < 0 || c >= map->cols) {
         // Coordinates are out of bounds
@@ -86,6 +87,7 @@ int startBorder(Map* map, int r, int c, int rule) {
 
 	printf("Cell %d,%d has value %d\n", r + 1, c + 1, cellValue);
 
+	// @todo use isBorder function
 	// Left-hand rule
 	if (rule == -1) {
 		if (cellValue & 1) {
@@ -134,6 +136,7 @@ void printCoordinate(int r, int c) {
 }
 
 void findPath(Map* map, int r, int c, int rule) {
+	// @todo use original r and c vars
     int currentR = r;
     int currentC = c;
     int currentBorder = startBorder(map, currentR, currentC, rule);
@@ -141,6 +144,7 @@ void findPath(Map* map, int r, int c, int rule) {
     // Print the starting coordinate and initial direction
     printCoordinate(currentR, currentC);
 
+    // @todo use checkBorder
     while (1) {
         // Move to the next cell based on the current border
         switch (currentBorder) {
