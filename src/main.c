@@ -92,91 +92,162 @@ int triangleType(int row, int col) {
     }
 }
 
-int turn(int r, int c, int border) {
-	// moving left
-    if (border == 0) {
-        if (triangleType(r, c) == -1) {
-            // move top
-            return 2;
-        } else {
-            // move right
-            return 1;
-        }
-	// moving right
-    } else if (border == 1) {
-        if (triangleType(r, c) == -1) {
-            // move top
-            return 2;
-        }
+// Enum to represent the possible directions
+enum Direction {
+    TOP_LEFT,
+    TOP,
+    TOP_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM,
+    BOTTOM_RIGHT
+};
 
+int borderByDirection(enum Direction direction) {
+	// TOP_LEFT
+	if (direction == 0) {
+		// Left border
+		return 0;
+	}
+
+	// TOP
+	if (direction == 1) {
+		// Left border
+		return 0;
+	}
+
+	// TOP_RIGHT
+	if (direction == 2) {
+		// Top/Bottom border
 		return 2;
-	// moving top or bottom based on triangle type
-    } else if (border == 2) {
-        if (triangleType(r, c) == -1) {
-            // move right
-            return 1;
-        } else {
-            // move bottom
-            return 0;  // Corrected to move bottom (previously 2)
-        }
-    }
+	}
 
-    return 0;
+	// BOTTOM_LEFT
+	if (direction == 3) {
+		// Top/Bottom border
+		return 2;
+	}
+
+	// BOTTOM
+	if (direction == 4) {
+		// Right border
+		return 1;
+	}
+
+	// BOTTOM_RIGHT
+	// Right border
+	return 1;
 }
 
-void findPath(Map* map, int r, int c, int rule) {
-    // int currentBorder = startBorder(map, currentR, currentC, rule);
-    int border = 1;
+int turnUsingLeftHandRule(int row, int col, int border) {
+	// inspecting left border
+	if (border == 0) {
+		if (triangleType(row, col) == -1) {
+			// from left to top
+			return 2;
+		}
 
-    // @todo remove from prod.
-    printf("rule %d\n", rule);
+		// from left to right
+		return 1;
+	}
 
-    // Print the starting coordinate and initial direction
-    printLocation(r, c);
+	// inspecting right border
+	if (border == 1) {
+		if (triangleType(row, col) == -1) {
+			// from right to left
+			return 0;
+		}
 
-	// @todo remove from prod
-	// int oldBorder;
+		// from right to bottom
+		return 2;
+	}
 
-    // @todo use checkBorder
+	// inspecting top/bottom border
+	if (border == 2) {
+		if (triangleType(row, col) == -1) {
+			// from top to right
+			return 1;
+		}
+	}
+
+	// from bottom to left
+	return 0;
+}
+
+void escape(Map* map, int row, int col, int rule) {
+	enum Direction direction = BOTTOM_RIGHT;
+
+	printf("rule %d", rule);
+
+	// @todo use DO while loop...
+	// Moving loop
     while (1) {
-    	printf("isBorder %d: %d\n", border, isBorder(map, r, c, border));
+    	int border;
+		// @todo use DO while loop instead...
+    	// Turning loop (consider using single loop)
+		border = borderByDirection(direction);
 
-    	if (isBorder(map, r, c, border) == true) {
-    		// oldBorder = border;
+    	while (1) {
+			printf("Inspecting border %d at %dx%d: %d\n", border, row + 1, col + 1, isBorder(map, row, col, border));
 
-			// border = turn(r, c, border);
-
-    		// printf("border hit, turn from %d to %d\n", oldBorder, border);
-    	} else {
-    		// Step
-			if (border == 0) {
-				// Step left
-				c--;
-				printf("Step left\n");
-			} else if (border == 1) {
-				// Step right
-				c++;
-				printf("Step right\n");
-			} else if (border == 2) {
-				int type = triangleType(r, c);
-				r+= type;
-				printf("Step top or bottom %d + turn\n", type);
+			if (isBorder(map, row, col, border) == false) {
+				break;
 			}
+
+			printf("Turning border from %d\n", border);
+
+			border = turnUsingLeftHandRule(row, col, border);
+
+			printf("Turning border to %d\n", border);
     	}
 
-		border = turn(r, c, border);
+		// Step
+		if (border == 0) {
+			// Step left
+			col -= 1;
+
+			// Update direction
+			if (triangleType(row, col) == -1) {
+				printf("Step bottom left\n");
+				direction = BOTTOM_LEFT;
+			} else {
+				printf("Step top left\n");
+				direction = TOP_LEFT;
+			}
+
+		} else if (border == 1) {
+			// Step right
+			col += 1;
+
+			// Update direction
+			if (triangleType(row, col) == -1) {
+				printf("Step bottom right\n");
+				direction = BOTTOM_RIGHT;
+			} else {
+				printf("Step top right\n");
+				direction = TOP_RIGHT;
+			}
+		} else if (border == 2) {
+			int type = triangleType(row, col);
+			row += type;
+
+			// Update direction
+			if (type == -1) {
+				printf("Step top\n");
+				direction = TOP;
+			} else {
+				printf("Step bottom\n");
+				direction = BOTTOM;
+			}
+		}
 
         // Print the current coordinate
-        printLocation(r, c);
+        printLocation(row, col);
 
         // Check if we have reached the exit
         // @todo extract to isOut function
-        if (r < 0 || r >= map->rows || c < 0 || c >= map->cols) {
+        if (row < 0 || row >= map->rows || col < 0 || col >= map->cols) {
             break;
         }
-
-        // Determine the next border based on the rule
-        // currentBorder = startBorder(map, r, c, rule);
     }
 }
 
@@ -191,7 +262,7 @@ int main(int argc, char* argv[]) {
     int rule;
 
     if (strcmp(argv[1], "--rpath") == 0) {
-        rule = 0;
+        rule = -1;
     } else if (strcmp(argv[1], "--lpath") == 0) {
         rule = 1;
     } else {
@@ -207,8 +278,8 @@ int main(int argc, char* argv[]) {
     // Initialize the map from the filename
     Map* map = initMap(filename);
 
-    // Find and print the path
-    findPath(map, row, col, rule);
+    // Find the way out from the maze
+    escape(map, row, col, rule);
 
     // Release memory
     releaseMap(map);
