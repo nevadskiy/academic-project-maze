@@ -176,16 +176,16 @@ int turnUsingLeftHandRule(int row, int col, int border) {
 void escape(Map* map, int row, int col, int rule) {
 	enum Direction direction = BOTTOM_RIGHT;
 
-	printf("rule %d", rule);
+	printf("rule %d\n", rule);
 
 	// @todo use DO while loop...
 	// Moving loop
     while (1) {
-    	int border;
-		// @todo use DO while loop instead...
-    	// Turning loop (consider using single loop)
-		border = borderByDirection(direction);
+		int border = borderByDirection(direction);
+		printf("Setting starting border %d direction %d\n", border, direction);
 
+    	// Turning loop (consider using single loop)
+		// @todo use DO while loop instead...
     	while (1) {
 			printf("Inspecting border %d at %dx%d: %d\n", border, row + 1, col + 1, isBorder(map, row, col, border));
 
@@ -202,11 +202,9 @@ void escape(Map* map, int row, int col, int rule) {
 
 		// Step
 		if (border == 0) {
-			// Step left
-			col -= 1;
-
 			// Update direction
 			if (triangleType(row, col) == -1) {
+				// @todo here is a problem...
 				printf("Step bottom left\n");
 				direction = BOTTOM_LEFT;
 			} else {
@@ -214,10 +212,9 @@ void escape(Map* map, int row, int col, int rule) {
 				direction = TOP_LEFT;
 			}
 
+			// Step left
+			col -= 1;
 		} else if (border == 1) {
-			// Step right
-			col += 1;
-
 			// Update direction
 			if (triangleType(row, col) == -1) {
 				printf("Step bottom right\n");
@@ -226,9 +223,11 @@ void escape(Map* map, int row, int col, int rule) {
 				printf("Step top right\n");
 				direction = TOP_RIGHT;
 			}
+
+			// Step right
+			col += 1;
 		} else if (border == 2) {
 			int type = triangleType(row, col);
-			row += type;
 
 			// Update direction
 			if (type == -1) {
@@ -238,6 +237,8 @@ void escape(Map* map, int row, int col, int rule) {
 				printf("Step bottom\n");
 				direction = BOTTOM;
 			}
+
+			row += type;
 		}
 
         // Print the current coordinate
