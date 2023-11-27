@@ -93,32 +93,35 @@ int triangleType(int row, int col) {
 }
 
 int turn(int r, int c, int border) {
-	if (border == 0) {
-		if (triangleType(r, c) == -1) {
-			// move top
-			return 2;
-		} else {
-			// move right
-			return 1;
-		}
-	} else if (border == 1) {
-		if (triangleType(r, c) == -1) {
-			// move left
-			return 2;
-		} else {
-			// move bottom
-			return 2;
-		}
-	}
+	// moving left
+    if (border == 0) {
+        if (triangleType(r, c) == -1) {
+            // move top
+            return 2;
+        } else {
+            // move right
+            return 1;
+        }
+	// moving right
+    } else if (border == 1) {
+        if (triangleType(r, c) == -1) {
+            // move top
+            return 2;
+        }
 
-	if (border == 2) {
-		if (triangleType(r, c) == -1) {
-			// move right
-			return 1;
-		}
-	}
+		return 2;
+	// moving top or bottom based on triangle type
+    } else if (border == 2) {
+        if (triangleType(r, c) == -1) {
+            // move right
+            return 1;
+        } else {
+            // move bottom
+            return 0;  // Corrected to move bottom (previously 2)
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 void findPath(Map* map, int r, int c, int rule) {
