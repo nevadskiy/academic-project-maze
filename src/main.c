@@ -76,113 +76,104 @@ bool isBorder(Map* map, int r, int c, int border) {
     }
 }
 
-// @todo this function should be called only once to determine initial moving direction respecting input rule (left / right) (could be 6 possible outputs)
-int startBorder(Map* map, int r, int c, int rule) {
-    if (r < 0 || r >= map->rows || c < 0 || c >= map->cols) {
-        // Coordinates are out of bounds
-        return -1;
-    }
-
-    unsigned char cellValue = map->cells[r * map->cols + c];
-
-	printf("Cell %d,%d has value %d\n", r + 1, c + 1, cellValue);
-
-	// @todo use isBorder function
-	// Left-hand rule
-	if (rule == -1) {
-		if (cellValue & 1) {
-			// Left diagonal border is missing
-			return 0;
-		}
-
-		if ((cellValue >> 1) & 1) {
-			// Right diagonal border is missing
-			return 1;
-		}
-
-		if ((cellValue >> 2) & 1) {
-			// Top / bottom border is missing
-			return 0;
-		}
-	}
-
-	// Right-hand rule
-    if (rule == 1) {
-        if ((c % 2 == 1 && r % 2 == 1) || (c % 2 == 0 && r % 2 == 0)) {
-            if ((cellValue & 1) == 0) {
-                return 0;  // Follow the left diagonal border
-            }
-        }
-        if ((cellValue & 2) == 0) {
-            return 1;  // Follow the right edge of the skew
-        }
-        return 2;  // Follow the upper or lower limit
-    } else {  // Left-hand rule
-        if ((c % 2 == 1 && r % 2 == 1) || (c % 2 == 0 && r % 2 == 0)) {
-            if ((cellValue & 1) == 0) {
-                return 0;  // Follow the left diagonal border
-            }
-        }
-        if ((cellValue & 4) == 0) {
-            return 2;  // Follow the upper or lower limit
-        }
-        return 1;  // Follow the right edge of the skew
-    }
-}
-
-void printCoordinate(int r, int c) {
-	// Print coordinates and adjust to 1-based indexing
+// Print location and adjust it to 1-based indexing
+void printLocation(int r, int c) {
     printf("%d,%d\n", r + 1, c + 1);
 }
 
+// Determine if the triangle is at the top or bottom based on its position in the grid
+int triangleType(int row, int col) {
+    if ((row + col) % 2 == 0) {
+      	// Top sided
+        return -1;
+    } else {
+    	// Bottom sided
+        return 1;
+    }
+}
+
+int turn(int r, int c, int border) {
+	if (border == 0) {
+		if (triangleType(r, c) == -1) {
+			// move top
+			return 2;
+		} else {
+			// move right
+			return 1;
+		}
+	} else if (border == 1) {
+		if (triangleType(r, c) == -1) {
+			// move left
+			return 2;
+		} else {
+			// move bottom
+			return 2;
+		}
+	}
+
+	if (border == 2) {
+		if (triangleType(r, c) == -1) {
+			// move right
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 void findPath(Map* map, int r, int c, int rule) {
-	// @todo use original r and c vars
-    int currentR = r;
-    int currentC = c;
-    int currentBorder = startBorder(map, currentR, currentC, rule);
+    // int currentBorder = startBorder(map, currentR, currentC, rule);
+    int border = 1;
+
+    // @todo remove from prod.
+    printf("rule %d\n", rule);
 
     // Print the starting coordinate and initial direction
-    printCoordinate(currentR, currentC);
+    printLocation(r, c);
+
+	// @todo remove from prod
+	int oldBorder;
 
     // @todo use checkBorder
     while (1) {
-        // Move to the next cell based on the current border
-        switch (currentBorder) {
-            case 0:  // Left diagonal border
-                if (rule == 0) {
-                    currentC--;
-                } else {
-                    currentR--;
-                }
-                break;
-            case 1:  // Right edge of the skew
-                if (rule == 0) {
-                    currentC++;
-                } else {
-                    currentR--;
-                }
-                break;
-            case 2:  // Upper or lower limit
-                if (rule == 0) {
-                    currentR++;
-                } else {
-                    currentC++;
-                }
-                break;
-            default:
-                break;
-        }
+    	printf("isBorder %d: %d\n", border, isBorder(map, r, c, border));
+
+    	if (isBorder(map, r, c, border) == true) {
+    		oldBorder = border;
+
+			border = turn(r, c, border);
+
+    		printf("border hit, turn from %d to %d\n", oldBorder, border);
+    	} else {
+    		// Step
+			if (border == 0) {
+				// Step left
+				c--;
+				printf("Step left\n");
+			} else if (border == 1) {
+				// Step right
+				c++;
+				printf("Step right\n");
+			} else if (border == 2) {
+				int type = triangleType(r, c);
+				r+= type;
+				printf("Step top or bottom %d + turn\n", type);
+
+				border = turn(r, c, border);
+			}
+    	}
 
         // Print the current coordinate
-        printCoordinate(currentR, currentC);
+        printLocation(r, c);
 
         // Check if we have reached the exit
-        if (currentR < 0 || currentR >= map->rows || currentC < 0 || currentC >= map->cols) {
+        // @todo extract to isOut function
+        if (r < 0 || r >= map->rows || c < 0 || c >= map->cols) {
             break;
         }
 
         // Determine the next border based on the rule
-        currentBorder = startBorder(map, currentR, currentC, rule);
+        // currentBorder = startBorder(map, r, c, rule);
     }
 }
 
@@ -197,7 +188,7 @@ int main(int argc, char* argv[]) {
     int rule;
 
     if (strcmp(argv[1], "--rpath") == 0) {
-        rule = -1;
+        rule = 0;
     } else if (strcmp(argv[1], "--lpath") == 0) {
         rule = 1;
     } else {
