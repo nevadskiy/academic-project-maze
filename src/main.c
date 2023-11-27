@@ -135,18 +135,18 @@ void findPath(Map* map, int r, int c, int rule) {
     printLocation(r, c);
 
 	// @todo remove from prod
-	int oldBorder;
+	// int oldBorder;
 
     // @todo use checkBorder
     while (1) {
     	printf("isBorder %d: %d\n", border, isBorder(map, r, c, border));
 
     	if (isBorder(map, r, c, border) == true) {
-    		oldBorder = border;
+    		// oldBorder = border;
 
-			border = turn(r, c, border);
+			// border = turn(r, c, border);
 
-    		printf("border hit, turn from %d to %d\n", oldBorder, border);
+    		// printf("border hit, turn from %d to %d\n", oldBorder, border);
     	} else {
     		// Step
 			if (border == 0) {
@@ -161,10 +161,10 @@ void findPath(Map* map, int r, int c, int rule) {
 				int type = triangleType(r, c);
 				r+= type;
 				printf("Step top or bottom %d + turn\n", type);
-
-				border = turn(r, c, border);
 			}
     	}
+
+		border = turn(r, c, border);
 
         // Print the current coordinate
         printLocation(r, c);
