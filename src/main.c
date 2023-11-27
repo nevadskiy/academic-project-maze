@@ -181,23 +181,32 @@ void escape(Map* map, int row, int col, int rule) {
 	// @todo use DO while loop...
 	// Moving loop
     while (1) {
+		// Check if we have reached the exit
+		// @todo extract to isOut function
+		if (row < 0 || row >= map->rows || col < 0 || col >= map->cols) {
+			break;
+		}
+
+		// Print the current coordinate
+		printLocation(row, col);
+
 		int border = borderByDirection(direction);
-		printf("Setting starting border %d direction %d\n", border, direction);
+		// printf("Setting starting border %d direction %d\n", border, direction);
 
     	// Turning loop (consider using single loop)
 		// @todo use DO while loop instead...
     	while (1) {
-			printf("Inspecting border %d at %dx%d: %d\n", border, row + 1, col + 1, isBorder(map, row, col, border));
+			// printf("Inspecting border %d at %dx%d: %d\n", border, row + 1, col + 1, isBorder(map, row, col, border));
 
 			if (isBorder(map, row, col, border) == false) {
 				break;
 			}
 
-			printf("Turning border from %d\n", border);
+			// printf("Turning border from %d\n", border);
 
 			border = turnUsingLeftHandRule(row, col, border);
 
-			printf("Turning border to %d\n", border);
+			// printf("Turning border to %d\n", border);
     	}
 
 		// Step
@@ -205,10 +214,10 @@ void escape(Map* map, int row, int col, int rule) {
 			// Update direction
 			if (triangleType(row, col) == -1) {
 				// @todo here is a problem...
-				printf("Step bottom left\n");
+				// printf("Step bottom left\n");
 				direction = BOTTOM_LEFT;
 			} else {
-				printf("Step top left\n");
+				// printf("Step top left\n");
 				direction = TOP_LEFT;
 			}
 
@@ -217,10 +226,10 @@ void escape(Map* map, int row, int col, int rule) {
 		} else if (border == 1) {
 			// Update direction
 			if (triangleType(row, col) == -1) {
-				printf("Step bottom right\n");
+				// printf("Step bottom right\n");
 				direction = BOTTOM_RIGHT;
 			} else {
-				printf("Step top right\n");
+				// printf("Step top right\n");
 				direction = TOP_RIGHT;
 			}
 
@@ -231,24 +240,15 @@ void escape(Map* map, int row, int col, int rule) {
 
 			// Update direction
 			if (type == -1) {
-				printf("Step top\n");
+				// printf("Step top\n");
 				direction = TOP;
 			} else {
-				printf("Step bottom\n");
+				// printf("Step bottom\n");
 				direction = BOTTOM;
 			}
 
 			row += type;
 		}
-
-        // Print the current coordinate
-        printLocation(row, col);
-
-        // Check if we have reached the exit
-        // @todo extract to isOut function
-        if (row < 0 || row >= map->rows || col < 0 || col >= map->cols) {
-            break;
-        }
     }
 }
 
