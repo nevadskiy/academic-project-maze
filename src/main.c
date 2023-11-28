@@ -69,31 +69,6 @@ bool isBorder(Map* map, int row, int col, int border) {
 	// Get cell value from map
     unsigned char value = map->cells[row * map->cols + col];
 
-	bool result;
-
-	switch (border) {
-		// Left diagonal border
-		case 0:
-			// Inspect 1st LSB (least significant bit)
-			result = ((value >> 0) & 1) != 0;
-			break;
-		// Right diagonal border
-		case 1:
-			// Inspect 2nd LSB (least significant bit)
-			result = ((value >> 1) & 1) != 0;
-			break;
-		// Top or bottom border
-		case 2:
-			// Inspect 3rd LSB (least significant bit)
-			result = ((value >> 2) & 1) != 0;
-			break;
-		// Invalid border value
-		default:
-			break;
-	}
-
-	printf("result border %d: %s\n", border, result ? "true" : "false");
-
     switch (border) {
         // Left diagonal border
         case 0:
