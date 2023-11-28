@@ -59,23 +59,28 @@ void releaseMap(Map* map) {
 
 // Determine if location is outside map
 bool isOutside(Map *map, int row, int col) {
+	// Compare location with map size
 	return row < 0 || row >= map->rows || col < 0 || col >= map->cols;
 }
 
 // Determine if border exists
 bool isBorder(Map* map, int row, int col, int border) {
+	// Get cell value from map
     unsigned char value = map->cells[row * map->cols + col];
 
     switch (border) {
         // Left diagonal border
         case 0:
-            return (value & 1) != 0;
+        	// Inspect 1st LSB (least significant bit)
+            return ((value >> 0) & 1) != 0;
         // Right diagonal border
         case 1:
-            return (value & 2) != 0;
+        	// Inspect 2nd LSB (least significant bit)
+            return ((value >> 1) & 1) != 0;
         // Top or bottom border
         case 2:
-            return (value & 4) != 0;
+        	// Inspect 3rd LSB (least significant bit)
+            return ((value >> 2) & 1) != 0;
         // Invalid border value
         default:
             return false;
