@@ -69,6 +69,31 @@ bool isBorder(Map* map, int row, int col, int border) {
 	// Get cell value from map
     unsigned char value = map->cells[row * map->cols + col];
 
+	bool result;
+
+	switch (border) {
+		// Left diagonal border
+		case 0:
+			// Inspect 1st LSB (least significant bit)
+			result = ((value >> 0) & 1) != 0;
+			break;
+		// Right diagonal border
+		case 1:
+			// Inspect 2nd LSB (least significant bit)
+			result = ((value >> 1) & 1) != 0;
+			break;
+		// Top or bottom border
+		case 2:
+			// Inspect 3rd LSB (least significant bit)
+			result = ((value >> 2) & 1) != 0;
+			break;
+		// Invalid border value
+		default:
+			break;
+	}
+
+	printf("result border %d: %s\n", border, result ? "true" : "false");
+
     switch (border) {
         // Left diagonal border
         case 0:
@@ -114,8 +139,8 @@ enum Direction {
     BOTTOM_RIGHT
 };
 
-// Get border by moving direction
-int borderByDirection(enum Direction direction) {
+// Get border by moving direction with left hand rule
+int borderByDirectionWithLeftHandRule(enum Direction direction) {
 	switch (direction) {
         case TOP_LEFT:
         case TOP:
@@ -135,7 +160,28 @@ int borderByDirection(enum Direction direction) {
     }
 }
 
-// Turn to next border by left hand rule
+// Get border by moving direction with right hand rule
+int borderByDirectionWithRightHandRule(enum Direction direction) {
+	switch (direction) {
+		case BOTTOM:
+		case BOTTOM_LEFT:
+			// Left border
+			return 0;
+        case TOP:
+        case TOP_RIGHT:
+            // Right border
+            return 1;
+        case TOP_LEFT:
+        case BOTTOM_RIGHT:
+            // Top / Bottom border
+            return 2;
+        default:
+            // Unsupported direction
+            return -1;
+    }
+}
+
+// Turn to next border by left hand rule (clockwise direction)
 int turnByLeftHandRule(int row, int col, int border) {
 	// Get triangle type (top sided or bottom sided) by location
     int triangle = triangleType(row, col);
@@ -154,31 +200,54 @@ int turnByLeftHandRule(int row, int col, int border) {
     return 0;
 }
 
+// Turn to next border by right hand rule (counter-clockwise direction)
+int turnByRightHandRule(int row, int col, int border) {
+	// Get triangle type (top sided or bottom sided) by location
+    int triangle = triangleType(row, col);
+
+    if (border == 0) {
+        // from left to top or left to right
+        return (triangle == -1) ? 1 : 2;
+    } else if (border == 1) {
+        // from right to left or right to bottom
+        return (triangle == -1) ? 2 : 0;
+    } else if (border == 2) {
+        // from top to right or bottom to left
+        return (triangle == -1) ? 0 : 1;
+    }
+
+    return 0;
+}
+
 void escapeMap(Map* map, int row, int col, int rule) {
 	// @todo define starting direction
 	enum Direction direction = BOTTOM_RIGHT;
-
-	// @todo support right hand rule
-	printf("rule %d\n", rule);
 
 	// Move while inside map
     while (isOutside(map, row, col) == false) {
 		// Print current coordinate
 		printLocation(row, col);
 
-		// Get current border by moving direction
-		int border = borderByDirection(direction);
+		int border;
 
-		// Handle invalid border
-		if (border == -1) {
-			printf("Invalid border\n");
-			return;
+		if (rule == -1) {
+			// Get current border by moving direction and left hand rule
+			border = borderByDirectionWithLeftHandRule(direction);
+		} else if (rule == 1) {
+			// Get current border by moving direction and right hand rule
+			border = borderByDirectionWithRightHandRule(direction);
 		}
 
     	// Turn until no border
     	while (isBorder(map, row, col, border)) {
-    		// Turn to next border using left hand rule
-			border = turnByLeftHandRule(row, col, border);
+    		if (rule == -1) {
+				// Turn to next border using left hand rule
+				border = turnByLeftHandRule(row, col, border);
+			// right hand rule
+    		} else if (rule == 1) {
+				// Turn to next border using left hand rule
+				border = turnByRightHandRule(row, col, border);
+    		}
     	}
 
 		// Move
