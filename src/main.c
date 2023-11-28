@@ -93,13 +93,13 @@ void printLocation(int row, int col) {
     printf("%d,%d\n", row + 1, col + 1);
 }
 
-// Determine if triangle is at top or bottom based on its position in grid
+// Determine if triangle has top or bottom edge on its position in grid
 int getTriangle(int row, int col) {
     if ((row + col) % 2 == 0) {
-      	// Top sided
+      	// Top edge
         return -1;
     } else {
-    	// Bottom sided
+    	// Bottom edge
         return 1;
     }
 }
@@ -114,21 +114,21 @@ enum Direction {
     BOTTOM_RIGHT
 };
 
-// Get border by moving direction with left hand rule
+// Get edge by moving direction with left hand rule
 // @note can be simplified using math formula
-int getBorderByDirectionWithLeftHandRule(enum Direction direction) {
+int getEdgeByDirectionWithLeftHandRule(enum Direction direction) {
 	switch (direction) {
         case TOP_LEFT:
         case TOP:
-            // Left border
+            // Left edge
             return 0;
         case TOP_RIGHT:
         case BOTTOM_LEFT:
-            // Top / Bottom border
+            // Top / Bottom edge
             return 2;
         case BOTTOM:
         case BOTTOM_RIGHT:
-            // Right border
+            // Right edge
             return 1;
         default:
             // Unsupported direction
@@ -136,21 +136,21 @@ int getBorderByDirectionWithLeftHandRule(enum Direction direction) {
     }
 }
 
-// Get border by moving direction with right hand rule
+// Get edge by moving direction with right hand rule
 // @note can be simplified using math formula
-int getBorderByDirectionWithRightHandRule(enum Direction direction) {
+int getEdgeByDirectionWithRightHandRule(enum Direction direction) {
 	switch (direction) {
 		case BOTTOM:
 		case BOTTOM_LEFT:
-			// Left border
+			// Left edge
 			return 0;
         case TOP:
         case TOP_RIGHT:
-            // Right border
+            // Right edge
             return 1;
         case TOP_LEFT:
         case BOTTOM_RIGHT:
-            // Top / Bottom border
+            // Top / Bottom edge
             return 2;
         default:
             // Unsupported direction
@@ -159,15 +159,15 @@ int getBorderByDirectionWithRightHandRule(enum Direction direction) {
 }
 
 /*
-// Turn to next border by left hand rule (clockwise direction)
-int turnByLeftHandRule(int row, int col, int border) {
+// Turn to next edge by left hand rule (clockwise direction)
+int turnByLeftHandRule(int row, int col, int edge) {
 	// Get triangle type (top sided or bottom sided) by location
     int triangle = getTriangle(row, col);
 
-	 if (border == 0) {
+	 if (edge == 0) {
 	     // from left to top or left to right
 	     return (triangle == -1) ? 2 : 1;
-	 } else if (border == 1) {
+	 } else if (edge == 1) {
 	     // from right to left or right to bottom
 	     return (triangle == -1) ? 0 : 2;
 	 }
@@ -176,15 +176,15 @@ int turnByLeftHandRule(int row, int col, int border) {
 	 return (triangle == -1) ? 1 : 0;
 }
 
-// Turn to next border by right hand rule (counter-clockwise direction)
-int turnByRightHandRule(int row, int col, int border) {
+// Turn to next edge by right hand rule (counter-clockwise direction)
+int turnByRightHandRule(int row, int col, int edge) {
 	// Get triangle type (top sided or bottom sided) by location
     int triangle = getTriangle(row, col);
 
-	 if (border == 0) {
+	 if (edge == 0) {
 	     // from left to top or left to right
 	     return (triangle == -1) ? 1 : 2;
-	 } else if (border == 1) {
+	 } else if (edge == 1) {
 	     // from right to left or right to bottom
 	     return (triangle == -1) ? 2 : 0;
 	 }
@@ -194,15 +194,16 @@ int turnByRightHandRule(int row, int col, int border) {
 }
 */
 
-// Use math to determine next border by location and hand rule
-int turn(int row, int col, int border, int rule) {
+// Use math to determine next edge by location and hand rule
+int turn(int row, int col, int edge, int rule) {
 	int triangle = getTriangle(row, col);
 
-	return (3 + border + (rule * triangle)) % 3;
+	return (3 + edge + (rule * triangle)) % 3;
 }
 
 void escapeMap(Map* map, int row, int col, int rule) {
-	// @todo calculate starting direction (subtask #3)
+	// @todo calculate starting direction (subtask #3) startDirection()
+	// enum Direction direction = startDirection(map, row, col);
 	enum Direction direction = BOTTOM_RIGHT;
 
 	// Move while inside map
@@ -210,32 +211,32 @@ void escapeMap(Map* map, int row, int col, int rule) {
 		// Print current coordinate
 		printLocation(row, col);
 
-		int border;
+		int edge;
 
 		if (rule == -1) {
-			// Get current border by moving direction and right hand rule
-			border = getBorderByDirectionWithRightHandRule(direction);
+			// Get current edge by moving direction and right hand rule
+			edge = getEdgeByDirectionWithRightHandRule(direction);
 		} else if (rule == 1) {
-			// Get current border by moving direction and left hand rule
-			border = getBorderByDirectionWithLeftHandRule(direction);
+			// Get current edge by moving direction and left hand rule
+			edge = getEdgeByDirectionWithLeftHandRule(direction);
 		}
 
     	// Turn until no border
-    	while (isBorder(map, row, col, border)) {
+    	while (isBorder(map, row, col, edge)) {
     		/*
     		if (rule == -1) {
 				// Turn to next border using left hand rule
-				border = turnByRightHandRule(row, col, border);
+				edge = turnByRightHandRule(row, col, edge);
     		} else if (rule == 1) {
-				// Turn to next border using left hand rule
-				border = turnByLeftHandRule(row, col, border);
+				// Turn to next edge using left hand rule
+				edge = turnByLeftHandRule(row, col, edge);
     		}
     		*/
-    		border = turn(row, col, border, rule);
+    		edge = turn(row, col, edge, rule);
     	}
 
 		// Move
-		if (border == 0) {
+		if (edge == 0) {
 			// Update direction
 			if (getTriangle(row, col) == -1) {
 				direction = BOTTOM_LEFT;
@@ -245,7 +246,7 @@ void escapeMap(Map* map, int row, int col, int rule) {
 
 			// Update location and step 1 cell left
 			col -= 1;
-		} else if (border == 1) {
+		} else if (edge == 1) {
 			// Update direction
 			if (getTriangle(row, col) == -1) {
 				direction = BOTTOM_RIGHT;
@@ -255,8 +256,8 @@ void escapeMap(Map* map, int row, int col, int rule) {
 
 			// Update location and step 1 cell right
 			col += 1;
-		} else if (border == 2) {
-			// Get triangle type (top border or bottom border)
+		} else if (edge == 2) {
+			// Get triangle type (top edge or bottom edge)
 			int triangle = getTriangle(row, col);
 
 			// Update direction
