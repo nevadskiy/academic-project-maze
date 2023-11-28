@@ -175,9 +175,9 @@ void escapeMap(Map* map, int row, int col, int rule) {
 			return;
 		}
 
-    	// Turn
+    	// Turn until no border
     	while (isBorder(map, row, col, border)) {
-    		// Turn to next border
+    		// Turn to next border using left hand rule
 			border = turnByLeftHandRule(row, col, border);
     	}
 
