@@ -3,19 +3,23 @@
 #include <stdbool.h>
 #include <string.h>
 
+// Define map structure
 typedef struct {
     int rows;
     int cols;
     unsigned char *cells;
 } Map;
 
-Map* initMap(const char* filename) {
+// Build map from filename
+Map* buildMap(const char* filename) {
+	// Open map file
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
         fprintf(stderr, "Error opening file: %s\n", filename);
         exit(EXIT_FAILURE);
     }
 
+	// Allocate memory for map
     Map* map = (Map*)malloc(sizeof(Map));
     if (map == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -23,7 +27,7 @@ Map* initMap(const char* filename) {
         exit(EXIT_FAILURE);
     }
 
-    // Read rows and cols from the file
+    // Initialize map size from file
     fscanf(file, "%d %d", &map->rows, &map->cols);
 
     // Allocate memory for cells
@@ -35,13 +39,14 @@ Map* initMap(const char* filename) {
         exit(EXIT_FAILURE);
     }
 
-    // Read cell values from the file
+    // Initialize cells from map file
     for (int i = 0; i < map->rows; ++i) {
         for (int j = 0; j < map->cols; ++j) {
             fscanf(file, "%hhu", &map->cells[i * map->cols + j]);
         }
     }
 
+	// Close map file
     fclose(file);
 
     return map;
@@ -138,7 +143,7 @@ int borderByDirection(enum Direction direction) {
 	return 1;
 }
 
-int turnUsingLeftHandRule(int row, int col, int border) {
+int turnByLeftHandRule(int row, int col, int border) {
 	// inspecting left border
 	if (border == 0) {
 		if (triangleType(row, col) == -1) {
@@ -204,7 +209,7 @@ void escapeMap(Map* map, int row, int col, int rule) {
 
 			// printf("Turning border from %d\n", border);
 
-			border = turnUsingLeftHandRule(row, col, border);
+			border = turnByLeftHandRule(row, col, border);
 
 			// printf("Turning border to %d\n", border);
     	}
@@ -213,7 +218,6 @@ void escapeMap(Map* map, int row, int col, int rule) {
 		if (border == 0) {
 			// Update direction
 			if (triangleType(row, col) == -1) {
-				// @todo here is a problem...
 				// printf("Step bottom left\n");
 				direction = BOTTOM_LEFT;
 			} else {
@@ -276,10 +280,10 @@ int main(int argc, char* argv[]) {
 
     const char* filename = argv[4];
 
-    // Initialize the map from the filename
-    Map* map = initMap(filename);
+    // Build map using filename
+    Map* map = buildMap(filename);
 
-    // Find the way out from the maze
+    // Find the way out from maze
     escapeMap(map, row, col, rule);
 
     // Release memory
