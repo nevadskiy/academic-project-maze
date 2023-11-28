@@ -193,63 +193,49 @@ void escapeMap(Map* map, int row, int col, int rule) {
 		// Print current coordinate
 		printLocation(row, col);
 
+		// Get current border by moving direction
 		int border = borderByDirection(direction);
-		// printf("Setting starting border %d direction %d\n", border, direction);
 
-    	// Turning loop (consider using single loop)
-		// @todo use DO while loop instead...
-    	while (1) {
-			// printf("Inspecting border %d at %dx%d: %d\n", border, row + 1, col + 1, isBorder(map, row, col, border));
-
-			if (isBorder(map, row, col, border) == false) {
-				break;
-			}
-
-			// printf("Turning border from %d\n", border);
-
+    	// Turning loop
+    	while (isBorder(map, row, col, border)) {
+    		// Turn to next border
 			border = turnByLeftHandRule(row, col, border);
-
-			// printf("Turning border to %d\n", border);
     	}
 
 		// Step
 		if (border == 0) {
 			// Update direction
 			if (triangleType(row, col) == -1) {
-				// printf("Step bottom left\n");
 				direction = BOTTOM_LEFT;
 			} else {
-				// printf("Step top left\n");
 				direction = TOP_LEFT;
 			}
 
-			// Step left
+			// Update location and step 1 cell left
 			col -= 1;
 		} else if (border == 1) {
 			// Update direction
 			if (triangleType(row, col) == -1) {
-				// printf("Step bottom right\n");
 				direction = BOTTOM_RIGHT;
 			} else {
-				// printf("Step top right\n");
 				direction = TOP_RIGHT;
 			}
 
-			// Step right
+			// Update location and step 1 cell right
 			col += 1;
 		} else if (border == 2) {
-			int type = triangleType(row, col);
+			// Get triangle type (top border or bottom border)
+			int triangle = triangleType(row, col);
 
 			// Update direction
-			if (type == -1) {
-				// printf("Step top\n");
+			if (triangle == -1) {
 				direction = TOP;
 			} else {
-				// printf("Step bottom\n");
 				direction = BOTTOM;
 			}
 
-			row += type;
+			// Update location and step 1 cell top or bottom
+			row += triangle;
 		}
     }
 }
@@ -264,12 +250,12 @@ int main(int argc, char* argv[]) {
     // Initialize input variables
     int rule;
 
-    if (strcmp(argv[1], "--rpath") == 0) {
+    if (strcmp(argv[1], "--lpath") == 0) {
         rule = -1;
-    } else if (strcmp(argv[1], "--lpath") == 0) {
+    } else if (strcmp(argv[1], "--rpath") == 0) {
         rule = 1;
     } else {
-        fprintf(stderr, "Unsupported rule %s\n", argv[1]);
+        fprintf(stderr, "Unsupported hand rule %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
 
