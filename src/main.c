@@ -115,6 +115,7 @@ enum Direction {
 };
 
 // Get border by moving direction with left hand rule
+// @note can be simplified using math formula
 int getBorderByDirectionWithLeftHandRule(enum Direction direction) {
 	switch (direction) {
         case TOP_LEFT:
@@ -136,6 +137,7 @@ int getBorderByDirectionWithLeftHandRule(enum Direction direction) {
 }
 
 // Get border by moving direction with right hand rule
+// @note can be simplified using math formula
 int getBorderByDirectionWithRightHandRule(enum Direction direction) {
 	switch (direction) {
 		case BOTTOM:
@@ -200,7 +202,7 @@ int turn(int row, int col, int border, int rule) {
 }
 
 void escapeMap(Map* map, int row, int col, int rule) {
-	// @todo define starting direction
+	// @todo calculate starting direction (subtask #3)
 	enum Direction direction = BOTTOM_RIGHT;
 
 	// Move while inside map
@@ -270,6 +272,9 @@ void escapeMap(Map* map, int row, int col, int rule) {
     }
 }
 
+// @todo map validation with --test argument
+// @todo help message with --help argument
+// @todo (bonus) shortest maze path using --shortest argument
 int main(int argc, char* argv[]) {
     // Validate input arguments
     if (argc != 5) {
