@@ -173,7 +173,7 @@ int turnUsingLeftHandRule(int row, int col, int border) {
 	return 0;
 }
 
-void escape(Map* map, int row, int col, int rule) {
+void escapeMap(Map* map, int row, int col, int rule) {
 	enum Direction direction = BOTTOM_RIGHT;
 
 	printf("rule %d\n", rule);
@@ -280,7 +280,7 @@ int main(int argc, char* argv[]) {
     Map* map = initMap(filename);
 
     // Find the way out from the maze
-    escape(map, row, col, rule);
+    escapeMap(map, row, col, rule);
 
     // Release memory
     releaseMap(map);
