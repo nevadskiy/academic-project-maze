@@ -174,9 +174,7 @@ int turnByLeftHandRule(int row, int col, int border) {
 	// }
 
 	// Use math to determine next border
-	return (3 + border + triangle) % 3;
-
-    return 0;
+	return (3 + border + (1 * triangle)) % 3;
 }
 
 // Turn to next border by right hand rule (counter-clockwise direction)
@@ -184,18 +182,19 @@ int turnByRightHandRule(int row, int col, int border) {
 	// Get triangle type (top sided or bottom sided) by location
     int triangle = triangleType(row, col);
 
-    if (border == 0) {
-        // from left to top or left to right
-        return (triangle == -1) ? 1 : 2;
-    } else if (border == 1) {
-        // from right to left or right to bottom
-        return (triangle == -1) ? 2 : 0;
-    } else if (border == 2) {
-        // from top to right or bottom to left
-        return (triangle == -1) ? 0 : 1;
-    }
+	// if (border == 0) {
+	//     // from left to top or left to right
+	//     return (triangle == -1) ? 1 : 2;
+	// } else if (border == 1) {
+	//     // from right to left or right to bottom
+	//     return (triangle == -1) ? 2 : 0;
+	// } else if (border == 2) {
+	//     // from top to right or bottom to left
+	//     return (triangle == -1) ? 0 : 1;
+	// }
 
-    return 0;
+	// Use math to determine next border
+	return (3 + border + (-1 * triangle)) % 3;
 }
 
 void escapeMap(Map* map, int row, int col, int rule) {
@@ -210,22 +209,21 @@ void escapeMap(Map* map, int row, int col, int rule) {
 		int border;
 
 		if (rule == -1) {
-			// Get current border by moving direction and left hand rule
-			border = borderByDirectionWithLeftHandRule(direction);
-		} else if (rule == 1) {
 			// Get current border by moving direction and right hand rule
 			border = borderByDirectionWithRightHandRule(direction);
+		} else if (rule == 1) {
+			// Get current border by moving direction and left hand rule
+			border = borderByDirectionWithLeftHandRule(direction);
 		}
 
     	// Turn until no border
     	while (isBorder(map, row, col, border)) {
     		if (rule == -1) {
 				// Turn to next border using left hand rule
-				border = turnByLeftHandRule(row, col, border);
-			// right hand rule
+				border = turnByRightHandRule(row, col, border);
     		} else if (rule == 1) {
 				// Turn to next border using left hand rule
-				border = turnByRightHandRule(row, col, border);
+				border = turnByLeftHandRule(row, col, border);
     		}
     	}
 
@@ -277,11 +275,11 @@ int main(int argc, char* argv[]) {
     // Init input variables
     int rule;
 
-    if (strcmp(argv[1], "--lpath") == 0) {
+	if (strcmp(argv[1], "--rpath") == 0) {
         rule = -1;
-    } else if (strcmp(argv[1], "--rpath") == 0) {
+    } else if (strcmp(argv[1], "--lpath") == 0) {
         rule = 1;
-    } else {
+    } else  {
         fprintf(stderr, "Unsupported hand rule %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
