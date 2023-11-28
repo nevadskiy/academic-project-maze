@@ -135,39 +135,23 @@ int borderByDirection(enum Direction direction) {
     }
 }
 
+// Turn to next border by left hand rule
 int turnByLeftHandRule(int row, int col, int border) {
-	// inspecting left border
-	if (border == 0) {
-		if (triangleType(row, col) == -1) {
-			// from left to top
-			return 2;
-		}
+	// Get triangle type (top sided or bottom sided) by location
+    int triangle = triangleType(row, col);
 
-		// from left to right
-		return 1;
-	}
+    if (border == 0) {
+        // from left to top or left to right
+        return (triangle == -1) ? 2 : 1;
+    } else if (border == 1) {
+        // from right to left or right to bottom
+        return (triangle == -1) ? 0 : 2;
+    } else if (border == 2) {
+        // from top to right or bottom to left
+        return (triangle == -1) ? 1 : 0;
+    }
 
-	// inspecting right border
-	if (border == 1) {
-		if (triangleType(row, col) == -1) {
-			// from right to left
-			return 0;
-		}
-
-		// from right to bottom
-		return 2;
-	}
-
-	// inspecting top/bottom border
-	if (border == 2) {
-		if (triangleType(row, col) == -1) {
-			// from top to right
-			return 1;
-		}
-	}
-
-	// from bottom to left
-	return 0;
+    return 0;
 }
 
 void escapeMap(Map* map, int row, int col, int rule) {
