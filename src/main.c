@@ -161,16 +161,20 @@ int turnByLeftHandRule(int row, int col, int border) {
 	// Get triangle type (top sided or bottom sided) by location
     int triangle = triangleType(row, col);
 
-    if (border == 0) {
-        // from left to top or left to right
-        return (triangle == -1) ? 2 : 1;
-    } else if (border == 1) {
-        // from right to left or right to bottom
-        return (triangle == -1) ? 0 : 2;
-    } else if (border == 2) {
-        // from top to right or bottom to left
-        return (triangle == -1) ? 1 : 0;
-    }
+	// Original manual border calculation
+	// if (border == 0) {
+	//     // from left to top or left to right
+	//     return (triangle == -1) ? 2 : 1;
+	// } else if (border == 1) {
+	//     // from right to left or right to bottom
+	//     return (triangle == -1) ? 0 : 2;
+	// } else if (border == 2) {
+	//     // from top to right or bottom to left
+	//     return (triangle == -1) ? 1 : 0;
+	// }
+
+	// Use math to determine next border
+	return (3 + border + triangle) % 3;
 
     return 0;
 }
