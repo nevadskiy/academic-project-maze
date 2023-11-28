@@ -158,11 +158,11 @@ int getBorderByDirectionWithRightHandRule(enum Direction direction) {
     }
 }
 
-/*
+
 // Turn to next border by left hand rule (clockwise direction)
 int turnByLeftHandRule(int row, int col, int border) {
 	// Get triangle type (top sided or bottom sided) by location
-    int triangle = triangle(row, col);
+    int triangle = getTriangle(row, col);
 
 	 if (border == 0) {
 	     // from left to top or left to right
@@ -170,16 +170,16 @@ int turnByLeftHandRule(int row, int col, int border) {
 	 } else if (border == 1) {
 	     // from right to left or right to bottom
 	     return (triangle == -1) ? 0 : 2;
-	 } else if (border == 2) {
-	     // from top to right or bottom to left
-	     return (triangle == -1) ? 1 : 0;
 	 }
+
+	 // from top to right or bottom to left
+	 return (triangle == -1) ? 1 : 0;
 }
 
 // Turn to next border by right hand rule (counter-clockwise direction)
 int turnByRightHandRule(int row, int col, int border) {
 	// Get triangle type (top sided or bottom sided) by location
-    int triangle = triangle(row, col);
+    int triangle = getTriangle(row, col);
 
 	 if (border == 0) {
 	     // from left to top or left to right
@@ -187,19 +187,18 @@ int turnByRightHandRule(int row, int col, int border) {
 	 } else if (border == 1) {
 	     // from right to left or right to bottom
 	     return (triangle == -1) ? 2 : 0;
-	 } else if (border == 2) {
-	     // from top to right or bottom to left
-	     return (triangle == -1) ? 0 : 1;
 	 }
-}
-*/
 
-// Use math to determine next border by location and hand rule
-int turn(int row, int col, int border, int rule) {
-	int triangle = getTriangle(row, col);
-
-	return (3 + border + (rule * triangle)) % 3;
+	 // from top to right or bottom to left
+	 return (triangle == -1) ? 0 : 1;
 }
+
+//// Use math to determine next border by location and hand rule
+//int turn(int row, int col, int border, int rule) {
+//	int triangle = getTriangle(row, col);
+//
+//	return (3 + border + (rule * triangle)) % 3;
+//}
 
 void escapeMap(Map* map, int row, int col, int rule) {
 	// @todo calculate starting direction (subtask #3)
@@ -222,7 +221,6 @@ void escapeMap(Map* map, int row, int col, int rule) {
 
     	// Turn until no border
     	while (isBorder(map, row, col, border)) {
-    		/*
     		if (rule == -1) {
 				// Turn to next border using left hand rule
 				border = turnByRightHandRule(row, col, border);
@@ -230,8 +228,8 @@ void escapeMap(Map* map, int row, int col, int rule) {
 				// Turn to next border using left hand rule
 				border = turnByLeftHandRule(row, col, border);
     		}
-    		*/
-    		border = turn(row, col, border, rule);
+
+    		// border = turn(row, col, border, rule);
     	}
 
 		// Move
