@@ -27,7 +27,7 @@ Map* buildMap(const char* filename) {
         exit(EXIT_FAILURE);
     }
 
-    // Initialize map size from file
+    // Init map size from file
     fscanf(file, "%d %d", &map->rows, &map->cols);
 
     // Allocate memory for cells
@@ -39,7 +39,7 @@ Map* buildMap(const char* filename) {
         exit(EXIT_FAILURE);
     }
 
-    // Initialize cells from map file
+    // Init cells from map file
     for (int i = 0; i < map->rows; ++i) {
         for (int j = 0; j < map->cols; ++j) {
             fscanf(file, "%hhu", &map->cells[i * map->cols + j]);
@@ -52,6 +52,7 @@ Map* buildMap(const char* filename) {
     return map;
 }
 
+// Release map and free up memory
 void releaseMap(Map* map) {
     free(map->cells);
     free(map);
@@ -103,7 +104,7 @@ int triangleType(int row, int col) {
     }
 }
 
-// Enum to represent possible directions
+// Enum with possible directions
 enum Direction {
     TOP_LEFT,
     TOP,
@@ -113,40 +114,25 @@ enum Direction {
     BOTTOM_RIGHT
 };
 
+// Get border by moving direction
 int borderByDirection(enum Direction direction) {
-	// TOP_LEFT
-	if (direction == 0) {
-		// Left border
-		return 0;
-	}
-
-	// TOP
-	if (direction == 1) {
-		// Left border
-		return 0;
-	}
-
-	// TOP_RIGHT
-	if (direction == 2) {
-		// Top/Bottom border
-		return 2;
-	}
-
-	// BOTTOM_LEFT
-	if (direction == 3) {
-		// Top/Bottom border
-		return 2;
-	}
-
-	// BOTTOM
-	if (direction == 4) {
-		// Right border
-		return 1;
-	}
-
-	// BOTTOM_RIGHT
-	// Right border
-	return 1;
+	switch (direction) {
+        case TOP_LEFT:
+        case TOP:
+            // Left border
+            return 0;
+        case TOP_RIGHT:
+        case BOTTOM_LEFT:
+            // Top / Bottom border
+            return 2;
+        case BOTTOM:
+        case BOTTOM_RIGHT:
+            // Right border
+            return 1;
+        default:
+            // Unsupported direction
+            return -1;
+    }
 }
 
 int turnByLeftHandRule(int row, int col, int border) {
@@ -185,10 +171,13 @@ int turnByLeftHandRule(int row, int col, int border) {
 }
 
 void escapeMap(Map* map, int row, int col, int rule) {
+	// @todo define starting direction
 	enum Direction direction = BOTTOM_RIGHT;
 
+	// @todo support right hand rule
 	printf("rule %d\n", rule);
 
+	// Move while inside map
     while (isOutside(map, row, col) == false) {
 		// Print current coordinate
 		printLocation(row, col);
@@ -196,13 +185,19 @@ void escapeMap(Map* map, int row, int col, int rule) {
 		// Get current border by moving direction
 		int border = borderByDirection(direction);
 
-    	// Turning loop
+		// Handle invalid border
+		if (border == -1) {
+			printf("Invalid border\n");
+			return;
+		}
+
+    	// Turn
     	while (isBorder(map, row, col, border)) {
     		// Turn to next border
 			border = turnByLeftHandRule(row, col, border);
     	}
 
-		// Step
+		// Move
 		if (border == 0) {
 			// Update direction
 			if (triangleType(row, col) == -1) {
@@ -247,7 +242,7 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // Initialize input variables
+    // Init input variables
     int rule;
 
     if (strcmp(argv[1], "--lpath") == 0) {
@@ -259,6 +254,7 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
+	// Init starting location
     int row = atoi(argv[2]) - 1;  // Adjust to 0-based indexing
     int col = atoi(argv[3]) - 1;  // Adjust to 0-based indexing
 
