@@ -57,24 +57,25 @@ void releaseMap(Map* map) {
     free(map);
 }
 
-bool isBorder(Map* map, int r, int c, int border) {
-    if (r < 0 || r >= map->rows || c < 0 || c >= map->cols) {
-        // Coordinates are out of bounds
-        return false;
-    }
+// Determine if location is outside map
+bool isOutside(Map *map, int row, int col) {
+	return row < 0 || row >= map->rows || col < 0 || col >= map->cols;
+}
 
-    unsigned char cellValue = map->cells[r * map->cols + c];
+// Determine if border exists
+bool isBorder(Map* map, int row, int col, int border) {
+    unsigned char value = map->cells[row * map->cols + col];
 
     switch (border) {
         // Left diagonal border
         case 0:
-            return (cellValue & 1) != 0;
+            return (value & 1) != 0;
         // Right diagonal border
         case 1:
-            return (cellValue & 2) != 0;
+            return (value & 2) != 0;
         // Top or bottom border
         case 2:
-            return (cellValue & 4) != 0;
+            return (value & 4) != 0;
         // Invalid border value
         default:
             return false;
@@ -82,8 +83,8 @@ bool isBorder(Map* map, int r, int c, int border) {
 }
 
 // Print location and adjust it to 1-based indexing
-void printLocation(int r, int c) {
-    printf("%d,%d\n", r + 1, c + 1);
+void printLocation(int row, int col) {
+    printf("%d,%d\n", row + 1, col + 1);
 }
 
 // Determine if the triangle is at the top or bottom based on its position in the grid
