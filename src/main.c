@@ -189,14 +189,7 @@ void escapeMap(Map* map, int row, int col, int rule) {
 
 	printf("rule %d\n", rule);
 
-	// @todo use DO while loop...
-	// Moving loop
-    while (1) {
-		// Check if we have reached exit
-		if (isOutside(map, row, col)) {
-			break;
-		}
-
+    while (isOutside(map, row, col) == false) {
 		// Print current coordinate
 		printLocation(row, col);
 
