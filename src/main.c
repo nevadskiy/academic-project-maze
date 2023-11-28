@@ -92,7 +92,7 @@ void printLocation(int row, int col) {
     printf("%d,%d\n", row + 1, col + 1);
 }
 
-// Determine if the triangle is at the top or bottom based on its position in the grid
+// Determine if triangle is at top or bottom based on its position in grid
 int triangleType(int row, int col) {
     if ((row + col) % 2 == 0) {
       	// Top sided
@@ -103,7 +103,7 @@ int triangleType(int row, int col) {
     }
 }
 
-// Enum to represent the possible directions
+// Enum to represent possible directions
 enum Direction {
     TOP_LEFT,
     TOP,
@@ -192,13 +192,12 @@ void escapeMap(Map* map, int row, int col, int rule) {
 	// @todo use DO while loop...
 	// Moving loop
     while (1) {
-		// Check if we have reached the exit
-		// @todo extract to isOut function
-		if (row < 0 || row >= map->rows || col < 0 || col >= map->cols) {
+		// Check if we have reached exit
+		if (isOutside(map, row, col)) {
 			break;
 		}
 
-		// Print the current coordinate
+		// Print current coordinate
 		printLocation(row, col);
 
 		int border = borderByDirection(direction);
@@ -289,7 +288,7 @@ int main(int argc, char* argv[]) {
     // Build map using filename
     Map* map = buildMap(filename);
 
-    // Find the way out from maze
+    // Find way out from maze
     escapeMap(map, row, col, rule);
 
     // Release memory
